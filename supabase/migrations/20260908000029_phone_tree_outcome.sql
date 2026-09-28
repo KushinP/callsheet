@@ -1,0 +1,14 @@
+-- A phone tree is not a person.
+--
+-- "Connected – Other" was absorbing every IVR, and is_connected_outcome()
+-- counts it, so every menu that answered inflated the connection rate — the one
+-- number used to judge whether a list or a script is working. A machine picking
+-- up belongs beside voicemail, not beside a conversation.
+--
+-- Placed after 'voicemail' for that reason: the enum reads in the order these
+-- things actually happen to a call, and anything reading enum_range gets the
+-- machine-answered outcomes together.
+--
+-- Deliberately NOT added to is_connected_outcome(). That omission is the whole
+-- point of the outcome existing.
+alter type public.call_outcome add value if not exists 'phone_tree' after 'voicemail';

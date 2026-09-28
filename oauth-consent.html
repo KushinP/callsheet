@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<title>Authorize · Callsheet</title>
+<!--
+  OAuth consent screen for the Callsheet MCP connector.
+
+  Supabase's OAuth 2.1 server redirects the user here (Site URL + Authorization Path)
+  with an `authorization_id`; this page signs them in and calls supabase.auth.oauth.*
+  to approve or deny. It is served from the Vite app's own origin rather than an edge
+  function on purpose: *.supabase.co force-downgrades HTML responses to text/plain as
+  an anti-phishing measure, so the consent UI cannot live there.
+
+  The URL and anon key below are public client credentials — safe to commit. Row Level
+  Security is what protects the data.
+-->
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center;
+    background: #0b0c0f; color: #e7e9ee; padding: 24px;
+    font: 14px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,.02) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .card {
+    width: 100%; max-width: 400px; background: #14161b;
+    border: 1px solid #262a33; border-radius: 10px; padding: 20px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .mark {
+    width: 28px; height: 28px; border-radius: 6px; background: #22c55e;
+    display: grid; place-items: center; flex: none;
+  }
+  .mark svg { width: 15px; height: 15px; }
+  .brand b { font-size: 15px; letter-spacing: -.01em; }
+  .brand span { display: block; font-size: 11px; color: #6b7280; font-weight: 400; }
+  h1 { font-size: 14px; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  .muted { color: #9ba1ae; font-size: 12px; }
+  .err { color: #ef4444; font-size: 12px; }
+  label { display: block; font-size: 11px; text-transform: uppercase;
+          letter-spacing: .08em; color: #9ba1ae; margin: 12px 0 5px; }
+  input {
+    width: 100%; height: 34px; padding: 0 10px; border-radius: 5px;
+    border: 1px solid #262a33; background: #0b0c0f; color: #e7e9ee;
+    font: inherit; font-size: 13px;
+  }
+  input:focus { outline: none; border-color: #22c55e; }
+  button {
+    width: 100%; height: 36px; margin-top: 14px; border: 0; border-radius: 5px;
+    background: #22c55e; color: #000; font: inherit; font-weight: 500;
+    font-size: 13px; cursor: pointer;
+  }
+  button:hover { background: #16a34a; }
+  button:disabled { opacity: .5; cursor: default; }
+  button.secondary { background: #1f232b; color: #e7e9ee; border: 1px solid #262a33; }
+  button.secondary:hover { background: #262b34; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .row button { margin-top: 0; }
+  .scopes { margin: 10px 0; padding-left: 18px; color: #9ba1ae; font-size: 12px; }
+  .grant { border: 1px solid #262a33; background: #0b0c0f;
+           border-radius: 6px; padding: 10px 12px; margin: 12px 0; font-size: 12px; }
+  .grant li { color: #9ba1ae; margin: 3px 0; }
+  .grant ul { margin: 6px 0 0; padding-left: 16px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <span class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07
+                   19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3
+                   a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09
+                   9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0
+                   2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+      </span>
+      <div><b>Callsheet</b><span>Power-dialer CRM</span></div>
+    </div>
+    <div id="content"><p class="muted">Loading…</p></div>
+  </div>
+
+<script type="module">
+  // A Vite entry, not a static file, so it reads the same .env.local as the app.
+  import { createClient } from "@supabase/supabase-js";
+
+  const supabase = createClient(
+    import.meta.env.VITE_SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_ANON_KEY,
+  );
+  const authorizationId = new URLSearchParams(location.search).get("authorization_id");
+  const content = document.getElementById("content");
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const fail = (m) => { content.innerHTML = `<p class="err">${esc(m)}</p>`; };
+
+  async function start() {
+    if (!authorizationId) {
+      return fail("Open this page from Claude's connector setup — it needs an authorization request. " +
+                  "Add the Callsheet connector in Claude → Settings → Connectors.");
+    }
+    const { data } = await supabase.auth.getSession();
+    return data?.session ? showConsent() : showLogin();
+  }
+
+  function showLogin(notice) {
+    content.innerHTML = `
+      <h1>Sign in to Callsheet</h1>
+      <p class="muted">Use the same email and password you use in the app.</p>
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" placeholder="you@company.com" />
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" />
+      <button id="signin">Sign in</button>
+      <p id="msg" class="${notice ? "err" : "muted"}">${notice ? esc(notice) : ""}</p>`;
+
+    const msg = document.getElementById("msg");
+    const submit = async function () {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      if (!email || !password) return;
+      const btn = document.getElementById("signin");
+      btn.disabled = true; msg.className = "muted"; msg.textContent = "Signing in…";
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      btn.disabled = false;
+      if (error) { msg.className = "err"; msg.textContent = error.message; return; }
+      showConsent();
+    };
+    document.getElementById("signin").onclick = submit;
+    content.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+  }
+
+  async function showConsent() {
+    content.innerHTML = `<p class="muted">Loading request…</p>`;
+    const { data, error } = await supabase.auth.oauth.getAuthorizationDetails(authorizationId);
+    if (error) return fail(error.message);
+    // Already approved for this client — Supabase hands back the redirect straight away.
+    if (!("authorization_id" in data)) { location.href = data.redirect_url; return; }
+
+    const client = data.client?.name || data.client?.client_name || data.client_name || "An application";
+    const scopes = String(data.scope || "").split(" ").filter(Boolean);
+    const { data: who } = await supabase.auth.getUser();
+    const email = who?.user?.email || "your account";
+
+    content.innerHTML = `
+      <h1>Authorize access</h1>
+      <p><b>${esc(client)}</b> wants to access <b>Callsheet</b> as ${esc(email)}.</p>
+      <div class="grant">
+        It will be able to:
+        <ul>
+          <li>Read your calls, transcripts, leads and sessions</li>
+          <li>Change call outcomes and add notes</li>
+          <li>Flag leads do-not-call</li>
+        </ul>
+      </div>
+      <p class="muted">It cannot read your Twilio credentials or place calls.</p>
+      ${scopes.length ? `<ul class="scopes">${scopes.map((s) => `<li>${esc(s)}</li>`).join("")}</ul>` : ""}
+      <div class="row">
+        <button id="deny" class="secondary">Deny</button>
+        <button id="approve">Allow</button>
+      </div>
+      <p id="msg" class="muted"></p>`;
+
+    const msg = document.getElementById("msg");
+    document.getElementById("approve").onclick = async function () {
+      this.disabled = true; msg.textContent = "Approving…";
+      const { data: a, error: e } = await supabase.auth.oauth.approveAuthorization(authorizationId);
+      if (e) { this.disabled = false; msg.className = "err"; msg.textContent = e.message; return; }
+      location.href = a.redirect_url;
+    };
+    document.getElementById("deny").onclick = async function () {
+      this.disabled = true; msg.textContent = "Denying…";
+      const { data: d } = await supabase.auth.oauth.denyAuthorization(authorizationId);
+      if (d?.redirect_url) { location.href = d.redirect_url; return; }
+      content.innerHTML = `<p class="muted">Access denied. You can close this window.</p>`;
+    };
+  }
+
+  start();
+</script>
+</body>
+</html>

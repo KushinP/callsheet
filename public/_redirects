@@ -1,0 +1,3 @@
+# Client-side routing: anything that isn't a real file falls back to the SPA.
+# Static files (including /oauth-consent.html) are served before this applies.
+/*    /index.html   200

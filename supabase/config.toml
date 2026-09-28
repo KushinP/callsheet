@@ -1,0 +1,47 @@
+project_id = "callsheet"
+
+[functions.twilio-token]
+verify_jwt = true
+
+[functions.twilio-provision]
+verify_jwt = true
+
+[functions.twilio-conference]
+verify_jwt = true
+
+# The recording proxy checks the Authorization header itself via requireMember,
+# but leaves gateway verification on as a first line of defence.
+[functions.recording-proxy]
+verify_jwt = true
+
+# Deletes rows as the caller, then the audio they recorded — which takes R2 and
+# Twilio credentials the browser must never hold.
+[functions.delete-calls]
+verify_jwt = true
+
+# Twilio cannot present a Supabase JWT. These three authenticate every request
+# by its X-Twilio-Signature instead, using the workspace's own auth token.
+[functions.twilio-voice]
+verify_jwt = false
+
+[functions.twilio-status]
+verify_jwt = false
+
+[functions.twilio-recording]
+verify_jwt = false
+
+# The MCP connector. verify_jwt = false because it does its own auth in-function:
+# the OAuth discovery handshake requires an unauthenticated request to receive a
+# 401 + WWW-Authenticate pointing at our protected-resource metadata.
+[functions.mcp]
+verify_jwt = false
+
+# Server-to-server only: dispatched by twilio-recording with a shared secret,
+# so there is no caller JWT for the gateway to verify.
+[functions.process-recording]
+verify_jwt = false
+
+# Called straight from the import dialog by a signed-in member, so the normal
+# JWT check is exactly what should guard it.
+[functions.generate-lead-briefs]
+verify_jwt = true

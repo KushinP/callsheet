@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "callsheet-heartbeat",
+  "main": "index.js",
+  "compatibility_date": "2026-09-01",
+  "triggers": {
+    // Daily at 12:00 UTC. The pause window is seven days, so one a day leaves
+    // six days of slack for a failed run to be noticed and fixed.
+    "crons": ["0 12 * * *"]
+  },
+  // Cron-only: no public URL, so nothing to register a subdomain for and no
+  // endpoint anyone could hit. The fetch handler stays for local testing via
+  // `wrangler dev`.
+  "workers_dev": false,
+  "observability": { "enabled": true }
+  // SUPABASE_URL and SUPABASE_ANON_KEY are Wrangler secrets, not vars, so the
+  // project they point at stays out of the repo:
+  //   npx wrangler secret put SUPABASE_URL
+  //   npx wrangler secret put SUPABASE_ANON_KEY
+}

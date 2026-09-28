@@ -1,0 +1,12 @@
+-- Someone else's AI answered the phone.
+--
+-- Distinct from 'phone_tree' on purpose, and the distinction is the most
+-- valuable one in the list. A phone tree is old infrastructure — the inn still
+-- has the problem this product solves. An AI voice agent means a competitor has
+-- already sold them, which is a different lead, a different conversation, and
+-- the only outcome here that says anything about the market rather than the
+-- call.
+--
+-- Also not in is_connected_outcome(), for the same reason as phone_tree: no
+-- human was on the line.
+alter type public.call_outcome add value if not exists 'ai_competitor' after 'phone_tree';

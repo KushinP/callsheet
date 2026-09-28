@@ -5,9 +5,6 @@ Import CSVs of leads into a workspace, freeze a filtered slice into an ordered
 calling session, and power through it with a browser-based dialer that logs
 every call, recording, and outcome.
 
-Built from the spec in *The Newbie's Guide to Building Your Own Dialer*, as a
-real codebase you own outright rather than a hosted no-code build.
-
 ---
 
 ## Stack

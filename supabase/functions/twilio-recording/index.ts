@@ -6,7 +6,7 @@
  * playable link; the recording-proxy function is what actually streams audio,
  * because the raw Twilio media URL requires account credentials.
  */
-import { env, functionsBaseUrl, loadTwilioConfig, serviceClient } from '../_shared/db.ts'
+import { functionsBaseUrl, loadTwilioConfig, serviceClient } from '../_shared/db.ts'
 import { candidateUrls, readFormParams, verifyTwilioSignature } from '../_shared/twilio.ts'
 
 declare const Deno: {

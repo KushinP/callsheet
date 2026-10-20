@@ -126,7 +126,6 @@ export async function putObject(opts: {
   const path = `/${cfg.bucket}/${opts.key.split('/').map(encodeURIComponent).join('/')}`
   const now = new Date()
   const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '')  // 20260904T012233Z
-  const dateStamp = amzDate.slice(0, 8)
   const payloadHash = await sha256Hex(opts.body)
 
   const authorization = await signV4({
@@ -172,7 +171,6 @@ export async function getObject(key: string, range?: string | null): Promise<Res
   const path = `/${cfg.bucket}/${key.split('/').map(encodeURIComponent).join('/')}`
   const now = new Date()
   const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '')
-  const dateStamp = amzDate.slice(0, 8)
   const payloadHash = await sha256Hex('')
 
   const authorization = await signV4({

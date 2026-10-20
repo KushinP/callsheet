@@ -39,7 +39,7 @@ interface CardLine {
   text: string
 }
 
-const LEAD_IN = /^([A-Za-z][\w ,'\/-]{0,24}):\s*(["“].*)$/
+const LEAD_IN = /^([A-Za-z][\w ,'/-]{0,24}):\s*(["“].*)$/
 const NEGATIVE_LEAD_IN = /^(don'?t|do not|avoid|never|not|instead of|skip)\b/i
 const quoteCount = (s: string) => (s.match(/["“”]/g) ?? []).length
 

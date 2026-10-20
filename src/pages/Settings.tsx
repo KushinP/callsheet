@@ -69,6 +69,9 @@ export function SettingsPage() {
 
   useEffect(() => {
     setMinRooms(workspace?.min_rooms ? String(workspace.min_rooms) : '')
+  }, [workspace?.min_rooms])
+
+  useEffect(() => {
     setBudgetMinutes(
       workspace?.monthly_minute_budget ? String(workspace.monthly_minute_budget) : '',
     )
